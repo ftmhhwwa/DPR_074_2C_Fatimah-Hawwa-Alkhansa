@@ -3,6 +3,13 @@
 <?= $this->section('content') ?>
 
     <h3><?= $title ?></h3>
+
+    <?php if (session()->getFlashdata('success')): ?>
+        <div id="notification" class="notification-box success">
+            <?= session()->getFlashdata('success') ?>
+        </div>
+    <?php endif; ?>
+    
     <p><a href="/admin/komponengaji/create" class="btn btn-success">Tambah Komponen Gaji Baru</a></p>
 
     <table class="table table-bordered">
@@ -29,8 +36,8 @@
                 <td><?= number_format($row['nominal'], 0, ',', '.') ?></td>
                 <td><?= $row['satuan'] ?></td>
                 <td>
-                    <a href="/admin/komponengaji/edit/<?= $row['id_komponen_gaji'] ?>" class="btn btn-sm btn-warning">Ubah</a>
-                    <a href="/admin/komponengaji/delete/<?= $row['id_komponen_gaji'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?')">Hapus</a>
+                    <a href="/admin/komponengaji/edit/<?= $row['id_komponen_gaji'] ?>" class="btn btn-sm btn-warning">Edit</a>
+                    <a href="/admin/komponengaji/delete/<?= $row['id_komponen_gaji'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?')">Delete</a>
                 </td>
             </tr>
             <?php endforeach; 

@@ -10,9 +10,10 @@ $isLoggedIn = session()->get('isLoggedIn');
 <head>
     <title>Aplikasi Penghitungan & Transparasi Gaji DPR</title>
     <link rel="stylesheet" href="/css/style.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
     </head>
 <body>
-<div class="container">
+<div class="w-full px-4 mx-auto">
     <div class="header">
         <h2>APLIKASI PENGHITUNGAN & TRANSPARANSI GAJI DPR</h2>
     </div>

@@ -7,8 +7,10 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID Penggajian</th>
+                <th>ID Anggota</th>
+                <th>Gelar Depan</th>
                 <th>Nama Anggota</th>
+                <th>Gelar Belakang</th>
                 <th>Jabatan</th>
                 <th>Take Home Pay</th>
                 <th>Aksi</th>
@@ -20,17 +22,19 @@
                 foreach ($penggajian as $row): ?>
             <tr>
                 <td><?= $row['id_anggota'] ?></td>
+                <td><?= $row['gelar_depan'] ?></td>
                 <td><?= $row['nama_depan'] . ' ' . $row['nama_belakang'] ?></td>
+                <td><?= $row['gelar_belakang'] ?></td>
                 <td><?= $row['jabatan'] ?></td>
                 <td><?= number_format($row['take_home_pay'], 2, ',', '.') ?></td>
                 <td>
-                    <a href="/client/penggajian/view/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-info">Lihat Detail</a>                    
+                    <a href="/client/penggajian/view/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-info">View</a>                    
                 </td>
             </tr>
             <?php endforeach; 
             else: ?>
             <tr>
-                <td colspan="5">Data penggajian belum tersedia.</td>
+                <td colspan="7">Data penggajian belum tersedia.</td>
             </tr>
             <?php endif; ?>
         </tbody>

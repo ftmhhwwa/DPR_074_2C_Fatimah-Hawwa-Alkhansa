@@ -83,6 +83,6 @@ class Client extends BaseController
         ];
 
         // Memuat View untuk menampilkan detail penggajian
-        return view('client/penggajian/index', $data);
+        return view('client/penggajian/view', $data);
     }
 }

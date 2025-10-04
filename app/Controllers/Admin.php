@@ -41,7 +41,8 @@ class Admin extends BaseController
             'nama_belakang'   => $this->request->getPost('nama_belakang'),
             'gelar_belakang'  => $this->request->getPost('gelar_belakang'),
             'jabatan'         => $this->request->getPost('jabatan'),
-            'status_pernikahan' => $this->request->getPost('status_pernikahan')
+            'status_pernikahan' => $this->request->getPost('status_pernikahan'),
+            'jumlah_anak' => $this->request->getPost('jumlah_anak')
         ];
 
         // Menyimpan data ke database
@@ -82,7 +83,8 @@ class Admin extends BaseController
             'nama_belakang'   => $this->request->getPost('nama_belakang'),
             'gelar_belakang'  => $this->request->getPost('gelar_belakang'),
             'jabatan'         => $this->request->getPost('jabatan'),
-            'status_pernikahan' => $this->request->getPost('status_pernikahan')
+            'status_pernikahan' => $this->request->getPost('status_pernikahan'),
+            'jumlah_anak' => $this->request->getPost('jumlah_anak')
         ];
 
         // Memperbarui data di database
