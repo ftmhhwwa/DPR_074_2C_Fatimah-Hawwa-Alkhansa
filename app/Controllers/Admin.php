@@ -144,4 +144,44 @@ class Admin extends BaseController
         // Redirect ke halaman daftar komponen gaji dengan pesan sukses
         return redirect()->to('/admin/gaji')->with('success', 'Data komponen gaji berhasil ditambahkan.');
     }
+
+    public function editKomponenGaji($id)
+    {
+        $model = new KomponenGajiModel();
+
+        // Mengambil data komponen gaji berdasarkan ID
+        $komponen = $model->find($id);
+
+        if (!$komponen) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data komponen gaji tidak ditemukan.');
+        }
+
+        $data = [
+            'komponen' => $komponen,
+            'title'    => 'Ubah Data Komponen Gaji'
+        ];
+
+        // Menampilkan form untuk mengedit komponen gaji
+        return view('admin/komponengaji/edit', $data);
+    }
+
+    public function updateKomponenGaji($id)
+    {
+        $model = new KomponenGajiModel();
+
+        // Mendapatkan data dari form
+        $data = [
+            'nama_komponen' => $this->request->getPost('nama_komponen'),
+            'kategori'      => $this->request->getPost('kategori'),
+            'jabatan'       => $this->request->getPost('jabatan'),
+            'nominal'       => $this->request->getPost('nominal'),
+            'satuan'        => $this->request->getPost('satuan')
+        ];
+
+        // Memperbarui data di database
+        $model->update($id, $data);
+
+        // Redirect ke halaman daftar komponen gaji dengan pesan sukses
+        return redirect()->to('/admin/gaji')->with('success', 'Data komponen gaji berhasil diperbarui.');
+    }
 }

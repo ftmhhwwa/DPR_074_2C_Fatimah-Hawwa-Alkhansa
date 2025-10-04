@@ -29,6 +29,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('gaji', 'Admin::manageKomponenGaji');
     $routes->get('komponengaji/create', 'Admin::createKomponenGaji');
     $routes->post('komponengaji/store', 'Admin::storeKomponenGaji');
+    $routes->get('komponengaji/edit/(:num)', 'Admin::editKomponenGaji/$1');
+    $routes->post('komponengaji/update/(:num)', 'Admin::updateKomponenGaji/$1');
 });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---

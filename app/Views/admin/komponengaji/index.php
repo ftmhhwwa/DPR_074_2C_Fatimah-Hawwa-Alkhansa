@@ -14,6 +14,7 @@
                 <th>Jabatan</th>
                 <th>Nominal</th>
                 <th>Satuan</th>
+                <th>Aksi</th>
             </tr>
         </thead>
         <tbody>
@@ -27,6 +28,10 @@
                 <td><?= $row['jabatan'] ?></td>
                 <td><?= number_format($row['nominal'], 0, ',', '.') ?></td>
                 <td><?= $row['satuan'] ?></td>
+                <td>
+                    <a href="/admin/komponengaji/edit/<?= $row['id_komponen_gaji'] ?>" class="btn btn-sm btn-warning">Ubah</a>
+                    <a href="/admin/komponengaji/delete/<?= $row['id_komponen_gaji'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?')">Hapus</a>
+                </td>
             </tr>
             <?php endforeach; 
             else: ?>
