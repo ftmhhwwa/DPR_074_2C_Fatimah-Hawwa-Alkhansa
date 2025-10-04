@@ -184,4 +184,15 @@ class Admin extends BaseController
         // Redirect ke halaman daftar komponen gaji dengan pesan sukses
         return redirect()->to('/admin/gaji')->with('success', 'Data komponen gaji berhasil diperbarui.');
     }
+
+    public function deleteKomponenGaji($id)
+    {
+        $model = new KomponenGajiModel();
+
+        // Menghapus data komponen gaji berdasarkan ID
+        $model->delete($id);
+
+        // Redirect ke halaman daftar komponen gaji dengan pesan sukses
+        return redirect()->to('/admin/gaji')->with('success', 'Data komponen gaji berhasil dihapus.');
+    }
 }

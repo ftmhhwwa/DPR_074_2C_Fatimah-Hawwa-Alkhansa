@@ -13,7 +13,8 @@
             <label for="kategori" class="form-label">Kategori:</label>
             <select id="kategori" name="kategori" class="form-control" required>
                 <option value="Gaji Pokok" <?= $komponen['kategori'] === 'Gaji Pokok' ? 'selected' : '' ?>>Gaji Pokok</option>
-                <option value="Tunjangan" <?= $komponen['kategori'] === 'Tunjangan' ? 'selected' : '' ?>>Tunjangan</option>
+                <option value="Tunjangan Melekat" <?= $komponen['kategori'] === 'Tunjangan Melekat' ? 'selected' : '' ?>>Tunjangan Melekat</option>
+                <option value="Tunjangan Lain" <?= $komponen['kategori'] === 'Tunjangan Lain' ? 'selected' : '' ?>>Tunjangan Lain</option>
             </select>
         </div>
 
@@ -23,6 +24,7 @@
                 <option value="ketua" <?= $komponen['jabatan'] === 'ketua' ? 'selected' : '' ?>>Ketua</option>
                 <option value="wakil_ketua" <?= $komponen['jabatan'] === 'wakil_ketua' ? 'selected' : '' ?>>Wakil Ketua</option>
                 <option value="anggota" <?= $komponen['jabatan'] === 'anggota' ? 'selected' : '' ?>>Anggota</option>
+                <option value="semua" <?= $komponen['jabatan'] === 'semua' ? 'selected' : '' ?>>Semua</option>
             </select>
         </div>
 
@@ -33,7 +35,11 @@
 
         <div class="mb-3">
             <label for="satuan" class="form-label">Satuan:</label>
-            <input type="text" id="satuan" name="satuan" class="form-control" value="<?= $komponen['satuan'] ?>" required>
+            <select name="satuan" id="satuan" class="form-control" required>
+                <option value="bulan" <?= $komponen['satuan'] === 'bulan' ? 'selected' : '' ?>>Bulan</option>
+                <option value="hari" <?= $komponen['satuan'] === 'hari' ? 'selected' : '' ?>>Hari</option>
+                <option value="periode" <?= $komponen['satuan'] === 'periode' ? 'selected' : '' ?>>Periode</option>
+            </select>
         </div>
 
         <button type="submit" class="btn btn-primary">Simpan</button>

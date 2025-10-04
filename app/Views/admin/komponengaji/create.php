@@ -13,8 +13,9 @@
         <div class="mb-3">
             <label for="kategori" class="form-label">Kategori:</label>
             <select id="kategori" name="kategori" class="form-control" required>
-                <option value="tunjangan">Gaji Pokok</option>
-                <option value="potongan">Tunjangan</option>
+                <option value="Gaji Pokok">Gaji Pokok</option>
+                <option value="Tunjangan Melekat">Tunjangan Melekat</option>
+                <option value="Tunjangan Lain">Tunjangan Lain</option>
             </select>
         </div>
 
@@ -24,6 +25,7 @@
                 <option value="ketua">Ketua</option>
                 <option value="wakil_ketua">Wakil Ketua</option>
                 <option value="anggota">Anggota</option>
+                <option value="semua">Semua</option>
             </select>
         </div>
 
@@ -34,7 +36,11 @@
 
         <div class="mb-3">
             <label for="satuan" class="form-label">Satuan:</label>
-            <input type="text" id="satuan" name="satuan" class="form-control" required>
+            <select name="satuan" id="satuan" class="form-control" required>
+                <option value="bulan">Bulan</option>
+                <option value="hari">Hari</option>
+                <option value="periode">Periode</option>
+            </select>
         </div>
 
         <button type="submit" class="btn btn-primary">Simpan</button>
