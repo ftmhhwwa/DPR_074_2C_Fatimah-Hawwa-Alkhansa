@@ -26,6 +26,7 @@
                 <td><?= $row['jabatan'] ?></td>
                 <td><?= number_format($row['take_home_pay'], 2, ',', '.') ?></td>
                 <td>
+                    <a href="/admin/penggajian/view/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-info">Lihat Detail</a>
                     <a href="/admin/penggajian/edit/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-warning">Ubah</a>
                     <a href="/admin/penggajian/delete/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-danger" onclick="return confirm('Apakah Anda yakin?')">Hapus</a>
                 </td>

@@ -34,6 +34,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('komponengaji/delete/(:num)', 'Admin::deleteKomponenGaji/$1');
 
     $routes->get('penggajian', 'Admin::managePenggajian');
+    $routes->get('penggajian/view/(:num)', 'Admin::viewPenggajian/$1');
 });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---

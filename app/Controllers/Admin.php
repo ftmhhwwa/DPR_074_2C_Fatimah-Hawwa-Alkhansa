@@ -213,4 +213,56 @@ class Admin extends BaseController
         // Memuat View untuk menampilkan daftar penggajian
         return view('admin/penggajian/index', $data);
     }
+
+    public function viewPenggajian($idAnggota)
+    {
+        $model = new PenggajianModel();
+
+        // Mengambil detail gaji untuk anggota tertentu
+        $gajiDetail = $model->getGajiDetailByAnggota($idAnggota);
+
+        if (empty($gajiDetail)) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data penggajian tidak ditemukan untuk anggota ini.');
+        }
+
+        $data = [
+            'gajiDetail' => $gajiDetail,
+            'title'      => 'Detail Penggajian Anggota DPR'
+        ];
+
+        // Memuat View untuk menampilkan detail penggajian
+        return view('admin/penggajian/view', $data);
+    }
+
+    public function storePenggajian()
+    {
+        // 1. Ambil ID Anggota dari form
+        $idAnggota = $this->request->getPost('id_anggota'); 
+        
+        if (empty($idAnggota)) {
+            return redirect()->back()->with('error', 'Pilih anggota terlebih dahulu.');
+        }
+
+        // 2. Panggil Logic Perhitungan 
+        $calculator = new Penggajian(); 
+        $hasilPerhitungan = $calculator->hitungTakeHomePay($idAnggota); 
+        if (!$hasilPerhitungan) {
+            return redirect()->back()->with('error', 'Gagal menghitung gaji. Pastikan data komponen gaji lengkap.');
+        }
+        // 3. Masukkan Hasil ke Tabel Penggajian (Tabel Agregasi)
+        $penggajianModel = new \App\Models\PenggajianModel();
+        
+        $dataUntukDisimpan = [
+            'id_anggota'    => $idAnggota,
+            'id_komponen'   => $hasilPerhitungan['id_komponen_utama'], // Komponen gaji pokok/utama
+            'jabatan'       => $hasilPerhitungan['jabatan'],
+            'tunjangan'     => $hasilPerhitungan['total_tunjangan'],
+            'total_gaji'    => $hasilPerhitungan['total_gaji_bruto'],
+            'take_home_pay' => $hasilPerhitungan['take_home_pay'],
+        ];
+
+        $penggajianModel->insert($dataUntukDisimpan);
+
+        return redirect()->to('/admin/penggajian')->with('success', 'Perhitungan gaji berhasil disimpan.');
+    }
 }

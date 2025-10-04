@@ -31,7 +31,7 @@ class PenggajianModel extends Model
     {
         $builder = $this->db->table($this->table . ' AS P');
         $builder->select('
-            P.id_anggota, P.tunjangan, P.total_gaji, P.take_home_pay, 
+            P.id_anggota, P.take_home_pay, 
             K.nama_komponen, K.kategori, K.nominal, K.satuan 
         ');
 
