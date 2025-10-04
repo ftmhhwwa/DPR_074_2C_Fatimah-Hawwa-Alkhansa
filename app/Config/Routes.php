@@ -40,10 +40,13 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('penggajian/store', 'Admin::storePenggajian');
     $routes->get('penggajian/edit/(:num)', 'Admin::editPenggajian/$1');
     $routes->put('penggajian/update/(:num)', 'Admin::updatePenggajian/$1');
+    $routes->get('penggajian/delete/(:num)', 'Admin::deletePenggajian/$1');
     });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---
 $routes->group('client', ['filter' => 'auth'], function ($routes) {
     $routes->get('anggota', 'Client::viewAnggota');
     $routes->get('gaji', 'Client::viewKomponenGaji');
+    $routes->get('penggajian', 'Client::indexPenggajian');
+    $routes->get('penggajian/view/(:num)', 'Client::viewPenggajian/$1');
 });

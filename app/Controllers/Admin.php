@@ -380,4 +380,15 @@ class Admin extends BaseController
 
         return redirect()->to('/admin/penggajian')->with('success', 'Data penggajian berhasil diperbarui.');
     }
+
+    public function deletePenggajian($id)
+    {
+        $model = new PenggajianModel();
+
+        // Menghapus data komponen gaji berdasarkan ID
+        $model->delete($id);
+
+        // Redirect ke halaman daftar komponen gaji dengan pesan sukses
+        return redirect()->to('/admin/penggajian')->with('success', 'Data komponen gaji berhasil dihapus.');
+    }
 }

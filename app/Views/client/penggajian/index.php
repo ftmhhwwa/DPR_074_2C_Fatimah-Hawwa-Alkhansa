@@ -3,6 +3,7 @@
 
     <h3>Data Penggajian Gaji DPR</h3>
     <p>Informasi ini hanya bersifat baca (Read-only) untuk publik.</p>
+
     <table class="table table-bordered">
         <thead>
             <tr>
@@ -12,18 +13,18 @@
                 <th>Take Home Pay</th>
                 <th>Aksi</th>
             </tr>
-        </thead>    
+        </thead>
         <tbody>
             <?php 
             if (isset($penggajian) && is_array($penggajian)): 
                 foreach ($penggajian as $row): ?>
             <tr>
-                <td><?= $row['id_penggajian'] ?></td>
+                <td><?= $row['id_anggota'] ?></td>
                 <td><?= $row['nama_depan'] . ' ' . $row['nama_belakang'] ?></td>
                 <td><?= $row['jabatan'] ?></td>
                 <td><?= number_format($row['take_home_pay'], 2, ',', '.') ?></td>
                 <td>
-                    <a href="/client/penggajian/view/<?= $row['id_penggajian'] ?>" class="btn btn-sm btn-info">Lihat Rincian</a>
+                    <a href="/client/penggajian/view/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-info">Lihat Detail</a>                    
                 </td>
             </tr>
             <?php endforeach; 
