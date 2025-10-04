@@ -25,4 +25,19 @@ class Client extends BaseController
         // Memuat View untuk menampilkan daftar anggota
         return view('client/anggota/index', $data);
     }
+
+    public function viewKomponenGaji()
+    {
+        // Mengambil semua data komponen gaji dari database
+        $komponenGajiModel = new \App\Models\KomponenGajiModel();
+        $dataKomponenGaji = $komponenGajiModel->findAll();
+
+        $data = [
+            'komponen_gaji' => $dataKomponenGaji,
+            'title'         => 'Daftar Komponen Gaji DPR'
+        ];
+
+        // Memuat View untuk menampilkan daftar komponen gaji
+        return view('client/komponengaji/index', $data);
+    }
 }

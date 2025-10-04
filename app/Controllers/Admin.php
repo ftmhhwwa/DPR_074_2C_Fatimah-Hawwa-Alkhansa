@@ -2,6 +2,7 @@
 
 use App\Controllers\BaseController;
 use App\Models\AnggotaModel;
+use App\Models\KomponenGajiModel;
 
 class Admin extends BaseController
 {
@@ -101,5 +102,20 @@ class Admin extends BaseController
         return redirect()->to('/admin/anggota')->with('success', 'Data anggota berhasil dihapus.');
     }
 
-    
+    public function manageKomponenGaji()
+    {
+        // Inisialisasi Model KomponenGaji
+        $model = new KomponenGajiModel();
+
+        // Mengambil semua data komponen gaji dari database
+        $komponen = $model->findAll();
+
+        $data = [
+            'dataKomponenGaji' => $model->findAll(),
+            'title'            => 'Kelola Data Komponen Gaji'
+        ];
+
+        // Memuat View untuk menampilkan daftar komponen gaji
+        return view('admin/komponengaji/index', $data);
+    }
 }

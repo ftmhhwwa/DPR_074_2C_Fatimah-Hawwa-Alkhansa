@@ -23,11 +23,11 @@ $isLoggedIn = session()->get('isLoggedIn');
 
             <?php if (session()->get('role') === 'Admin') : ?>
                 <a href="/admin/anggota" class="<?= $secondSegment === 'anggota' ? 'active' : '' ?>">Data Anggota</a>
-                <a href="/admin/gaji" class="<?= $secondSegment === 'gaji' ? 'active' : '' ?>">Data Gaji</a>
+                <a href="/admin/gaji" class="<?= $secondSegment === 'gaji' ? 'active' : '' ?>">Komponen Gaji</a>
             
             <?php elseif (session()->get('role') === 'Public') : ?>
                 <a href="/client/anggota" class="<?= $secondSegment === 'anggota' ? 'active' : '' ?>">Data Anggota</a>
-                <a href="/client/penggajian" class="<?= $secondSegment === 'penggajian' ? 'active' : '' ?>">Transparansi Gaji</a>
+                <a href="/client/gaji" class="<?= $secondSegment === 'gaji' ? 'active' : '' ?>">Komponen Gaji</a>
             <?php endif; ?>
 
             <a href="/logout">Logout</a>
