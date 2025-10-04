@@ -2,7 +2,8 @@
 
 <?= $this->section('content') ?>
 
-    <h3>Data Komponen Gaji DPR</h3>
+    <h3><?= $title ?></h3>
+    <p><a href="/admin/komponengaji/create" class="btn btn-success">Tambah Komponen Gaji Baru</a></p>
 
     <table class="table table-bordered">
         <thead>

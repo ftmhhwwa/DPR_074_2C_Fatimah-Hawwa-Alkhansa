@@ -118,4 +118,30 @@ class Admin extends BaseController
         // Memuat View untuk menampilkan daftar komponen gaji
         return view('admin/komponengaji/index', $data);
     }
+
+    public function createKomponenGaji()
+    {
+        // Menampilkan form untuk menambahkan komponen gaji baru
+        return view('admin/komponengaji/create');
+    }
+
+    public function storeKomponenGaji()
+    {
+        $model = new KomponenGajiModel();
+
+        // Mendapatkan data dari form
+        $data = [
+            'nama_komponen' => $this->request->getPost('nama_komponen'),
+            'kategori'      => $this->request->getPost('kategori'),
+            'jabatan'       => $this->request->getPost('jabatan'),
+            'nominal'       => $this->request->getPost('nominal'),
+            'satuan'        => $this->request->getPost('satuan')
+        ];
+
+        // Menyimpan data ke database
+        $model->insert($data);
+
+        // Redirect ke halaman daftar komponen gaji dengan pesan sukses
+        return redirect()->to('/admin/gaji')->with('success', 'Data komponen gaji berhasil ditambahkan.');
+    }
 }

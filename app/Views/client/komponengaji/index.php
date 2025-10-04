@@ -18,8 +18,8 @@
         </thead>
         <tbody>
             <?php 
-            if (isset($komponen) && is_array($komponen)): 
-                foreach ($komponen as $row): ?>
+            if (isset($dataKomponenGaji) && is_array($dataKomponenGaji)): 
+                foreach ($dataKomponenGaji as $row): ?>
             <tr>
                 <td><?= $row['id_komponen_gaji'] ?></td>
                 <td><?= $row['nama_komponen'] ?></td>

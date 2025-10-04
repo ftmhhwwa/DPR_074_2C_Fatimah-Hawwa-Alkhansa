@@ -1,10 +1,12 @@
 <?php namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\KomponenGajiModel;
 
 class Client extends BaseController
 {
     protected $anggotaModel;
+    protected $komponenGajiModel;
 
     public function __construct()
     {
@@ -28,13 +30,15 @@ class Client extends BaseController
 
     public function viewKomponenGaji()
     {
+        // Inisialisasi Model KomponenGaji
+        $model = new KomponenGajiModel();
+
         // Mengambil semua data komponen gaji dari database
-        $komponenGajiModel = new \App\Models\KomponenGajiModel();
-        $dataKomponenGaji = $komponenGajiModel->findAll();
+        $komponen = $model->findAll();
 
         $data = [
-            'komponen_gaji' => $dataKomponenGaji,
-            'title'         => 'Daftar Komponen Gaji DPR'
+            'dataKomponenGaji' => $model->findAll(),
+            'title'            => 'Kelola Data Komponen Gaji'
         ];
 
         // Memuat View untuk menampilkan daftar komponen gaji
