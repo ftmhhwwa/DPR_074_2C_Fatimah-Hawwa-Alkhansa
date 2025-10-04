@@ -38,6 +38,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('penggajian/view/(:num)', 'Admin::viewPenggajian/$1');
     $routes->get('penggajian/create', 'Admin::createPenggajian');
     $routes->post('penggajian/store', 'Admin::storePenggajian');
+    $routes->get('penggajian/edit/(:num)', 'Admin::editPenggajian/$1');
+    $routes->put('penggajian/update/(:num)', 'Admin::updatePenggajian/$1');
     });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---

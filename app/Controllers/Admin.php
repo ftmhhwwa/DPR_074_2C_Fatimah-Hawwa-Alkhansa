@@ -325,4 +325,59 @@ class Admin extends BaseController
             return redirect()->back()->with('error', 'Gagal menyimpan data: Pastikan semua kolom yang diperlukan (termasuk total_gaji, tunjangan) ada di tabel penggajian. Error: ' . $e->getMessage())->withInput();
         }
     }
+
+    public function editPenggajian($id)
+    {
+        $penggajianModel = new PenggajianModel();
+        $query = $penggajianModel->select('
+                                        penggajian.id_anggota, 
+                                        penggajian.id_komponen_gaji,
+                                        A.nama_depan, A.nama_belakang, 
+                                        A.jabatan,  
+                                        penggajian.total_gaji, 
+                                        penggajian.take_home_pay
+                                        ')
+                                ->join('anggota AS A', 'A.id_anggota = penggajian.id_anggota', 'inner')
+                                ->join('komponen_gaji AS K', 'K.id_komponen_gaji = penggajian.id_komponen_gaji', 'inner')
+                                ->where('penggajian.id_anggota', $id);
+                                
+        $data = $query->first();
+
+        if (!$data) {
+            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        }
+
+        $data = [
+            'title'       => 'Edit Penggajian',
+            'penggajian'  => $data
+        ];
+        return view('admin/penggajian/edit', $data);
+    }
+
+    public function updatePenggajian($id)
+    {
+        $penggajianModel = new PenggajianModel();
+
+        // Validasi input
+        $this->validate([
+            'id_anggota'        => 'required',
+            'id_komponen_gaji'  => 'required',
+            'jabatan'           => 'required',
+            'total_gaji'       => 'required',
+            'take_home_pay'    => 'required',
+        ]);
+
+        // Ambil data dari form
+        $data = [
+            'id_anggota'        => $this->request->getPost('id_anggota'),
+            'id_komponen_gaji'  => $this->request->getPost('id_komponen_gaji'),
+            'total_gaji'       => $this->request->getPost('total_gaji'),
+            'take_home_pay'    => $this->request->getPost('take_home_pay'),
+        ];
+
+        // Update data
+        $penggajianModel->update($id, $data);
+
+        return redirect()->to('/admin/penggajian')->with('success', 'Data penggajian berhasil diperbarui.');
+    }
 }
