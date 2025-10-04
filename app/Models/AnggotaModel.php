@@ -11,7 +11,12 @@ class AnggotaModel extends Model
     protected $useSoftDeletes = false; 
 
     protected $allowedFields = [
-        'gelar_depan','nama_depan','nama_belakang','gelar_belakang','jabatan',
-        'status_pernikahan','jumlah_anak'
+        'gelar_depan',
+        'nama_depan',
+        'nama_belakang',
+        'gelar_belakang',
+        'jabatan',
+        'status_pernikahan',
+        'jumlah_anak'
     ];
 }

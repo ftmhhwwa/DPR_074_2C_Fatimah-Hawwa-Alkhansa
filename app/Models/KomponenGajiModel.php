@@ -11,6 +11,10 @@ class KomponenGajiModel extends Model
     protected $useSoftDeletes = false; 
 
     protected $allowedFields = [
-        'nama_komponen','kategori','jabatan','nominal','satuan'
+        'nama_komponen',
+        'kategori',
+        'jabatan',
+        'nominal',
+        'satuan'
     ];
 }

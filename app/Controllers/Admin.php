@@ -200,7 +200,7 @@ class Admin extends BaseController
     public function managePenggajian()
     {
         // Inisialisasi Model Penggajian
-        $model = new \App\Models\PenggajianModel();
+        $model = new PenggajianModel();
 
         // Mengambil ringkasan gaji (termasuk JOIN dan GROUPING)
         $gajiSummary = $model->getGajiSummary();
@@ -213,7 +213,7 @@ class Admin extends BaseController
         // Memuat View untuk menampilkan daftar penggajian
         return view('admin/penggajian/index', $data);
     }
-
+    
     public function viewPenggajian($idAnggota)
     {
         $model = new PenggajianModel();
@@ -234,35 +234,95 @@ class Admin extends BaseController
         return view('admin/penggajian/view', $data);
     }
 
-    public function storePenggajian()
+    public function createPenggajian()
     {
-        // 1. Ambil ID Anggota dari form
-        $idAnggota = $this->request->getPost('id_anggota'); 
-        
-        if (empty($idAnggota)) {
-            return redirect()->back()->with('error', 'Pilih anggota terlebih dahulu.');
-        }
+        helper(['form']);
+        // Inisialisasi Model
+        $anggotaModel = new AnggotaModel();
+        $komponenGajiModel = new KomponenGajiModel();
 
-        // 2. Panggil Logic Perhitungan 
-        $calculator = new Penggajian(); 
-        $hasilPerhitungan = $calculator->hitungTakeHomePay($idAnggota); 
-        if (!$hasilPerhitungan) {
-            return redirect()->back()->with('error', 'Gagal menghitung gaji. Pastikan data komponen gaji lengkap.');
-        }
-        // 3. Masukkan Hasil ke Tabel Penggajian (Tabel Agregasi)
-        $penggajianModel = new \App\Models\PenggajianModel();
-        
-        $dataUntukDisimpan = [
-            'id_anggota'    => $idAnggota,
-            'id_komponen'   => $hasilPerhitungan['id_komponen_utama'], // Komponen gaji pokok/utama
-            'jabatan'       => $hasilPerhitungan['jabatan'],
-            'tunjangan'     => $hasilPerhitungan['total_tunjangan'],
-            'total_gaji'    => $hasilPerhitungan['total_gaji_bruto'],
-            'take_home_pay' => $hasilPerhitungan['take_home_pay'],
+        // Mengambil semua data anggota dari database untuk dropdown
+        $dataAnggota = $anggotaModel->findAll();
+
+        // Mengambil semua komponen gaji berdasarkan jabatan anggota
+        $dataKomponenGaji = $komponenGajiModel->findAll();
+
+        $data = [
+            'anggota'      => $dataAnggota,
+            'komponenGaji' => $dataKomponenGaji,
+            'title'        => 'Hitung Take Home Pay Anggota DPR'
         ];
 
-        $penggajianModel->insert($dataUntukDisimpan);
+        // Menampilkan form untuk menghitung gaji baru
+        return view('admin/penggajian/create', $data);
+    }
 
-        return redirect()->to('/admin/penggajian')->with('success', 'Perhitungan gaji berhasil disimpan.');
+    public function storePenggajian()
+    {
+        // Ambil ID Anggota dari form
+        $idAnggota = $this->request->getPost('id_anggota'); 
+        $idKomponenGajiPokok = $this->request->getPost('id_komponen_gaji');
+        
+        if (empty($idAnggota) || empty($idKomponenGaji)) {
+            return redirect()->back()->with('error', 'Anggota dan Komponen Gaji wajib dipilih.')->withInput();
+        }
+
+        // Inisialisasi Model
+        $anggotaModel = new AnggotaModel();
+        $komponenModel = new KomponenGajiModel();
+        $penggajianModel = new PenggajianModel();
+
+         // Ambil data Anggota & Komponen Gaji Pokok
+        $anggota = $anggotaModel->find($idAnggota);
+        $komponenPokok = $komponenModel->find($idKomponenGajiPokok);
+
+        if (!$anggota || !$komponenPokok) {
+            return redirect()->back()->with('error', 'Data anggota atau komponen utama tidak ditemukan.')->withInput();
+        }
+
+        // Tentukan Jabatan dan Gaji Pokok
+        $jabatanAnggota = $anggota['jabatan'];
+        $gajiPokok = $komponenPokok['nominal'];
+        $totalTunjangan = 0;
+
+        // Ambil Komponen Gaji Lainya (Tunjangan Melekat/Lain) 
+        // Ambil semua komponen yang berlaku untuk jabatan anggota ini
+        
+        $komponenLainnya = $komponenModel
+                            ->where('jabatan', $jabatanAnggota)
+                            ->orWhere('jabatan', 'Semua') 
+                            ->where('kategori !=', 'Gaji Pokok') // Hindari double hitung Gaji Pokok
+                            ->findAll();
+
+        foreach ($komponenLainnya as $k) {
+       
+            // Kita hitung semua yang bukan Gaji Pokok
+            if (strpos($k['kategori'], 'Tunjangan') !== false) {
+                $totalTunjangan += $k['nominal'];
+            } 
+        }
+        
+        // Hitung Total Gaji dan THP
+        $totalGajiBruto = $gajiPokok + $totalTunjangan;
+        $takeHomePay = $totalGajiBruto; 
+
+        // 5. Simpan Hasil Perhitungan ke Tabel Penggajian (Agregasi)
+        $dataSimpan = [
+            'id_anggota'        => $idAnggota,
+            'id_komponen_gaji'  => $idKomponenGajiPokok,
+            'jabatan'           => $jabatanAnggota,
+            'tunjangan'         => $totalTunjangan,
+            'total_gaji'       => $totalGajiBruto,
+            'take_home_pay'    => $takeHomePay,
+        ];
+
+        try {
+            // Menggunakan save() yang akan UPDATE jika id_anggota sudah ada (karena id_anggota adalah primary key)
+            $penggajianModel->save($dataSimpan);
+            return redirect()->to('/admin/penggajian')->with('success', 'Perhitungan gaji berhasil disimpan.');
+        } catch (\Exception $e) {
+            // Ini akan menangkap error jika ada kolom yang tidak cocok
+            return redirect()->back()->with('error', 'Gagal menyimpan data: Pastikan semua kolom yang diperlukan (termasuk total_gaji, tunjangan) ada di tabel penggajian. Error: ' . $e->getMessage())->withInput();
+        }
     }
 }

@@ -9,7 +9,12 @@ class PenggajianModel extends Model
     protected $returnType     = 'array';
 
     protected $allowedFields = [
-        'id_komponen_gaji', 'jabatan', 'tunjangan', 'total_gaji', 'take_home_pay'
+        'id_anggota',
+        'id_komponen_gaji', 
+        'jabatan', 
+        'tunjangan', 
+        'total_gaji', 
+        'take_home_pay'
     ]; 
     
     public function getGajiSummary()

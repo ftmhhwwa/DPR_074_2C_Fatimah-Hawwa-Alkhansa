@@ -34,8 +34,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('komponengaji/delete/(:num)', 'Admin::deleteKomponenGaji/$1');
 
     $routes->get('penggajian', 'Admin::managePenggajian');
+    $routes->post('penggajian/hitung', 'Admin::hitungPenggajian');
     $routes->get('penggajian/view/(:num)', 'Admin::viewPenggajian/$1');
-});
+    $routes->get('penggajian/create', 'Admin::createPenggajian');
+    $routes->post('penggajian/store', 'Admin::storePenggajian');
+    });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---
 $routes->group('client', ['filter' => 'auth'], function ($routes) {
