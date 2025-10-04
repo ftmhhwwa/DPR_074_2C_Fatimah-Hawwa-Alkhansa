@@ -9,8 +9,11 @@
     <table class="table table-bordered">
         <thead>
             <tr>
-                <th>ID Penggajian</th>
-                <th>Nama Anggota</th>
+                <th>ID Anggota</th>
+                <th>Gelar Depan</th>
+                <th>Nama Depan</th>
+                <th>Nama Belakang</th>
+                <th>Gelar Belakang</th>
                 <th>Jabatan</th>
                 <th>Take Home Pay</th>
                 <th>Aksi</th>
@@ -22,7 +25,10 @@
                 foreach ($penggajian as $row): ?>
             <tr>
                 <td><?= $row['id_anggota'] ?></td>
-                <td><?= $row['nama_depan'] . ' ' . $row['nama_belakang'] ?></td>
+                <td><?= $row['gelar_depan'] ?? '' ?></td>
+                <td><?= $row['nama_depan'] ?></td>
+                <td><?= $row['nama_belakang'] ?></td>
+                <td><?= $row['gelar_belakang'] ?? '' ?></td>
                 <td><?= $row['jabatan'] ?></td>
                 <td><?= number_format($row['take_home_pay'], 2, ',', '.') ?></td>
                 <td>
@@ -34,7 +40,7 @@
             <?php endforeach; 
             else: ?>
             <tr>
-                <td colspan="5">Data penggajian belum tersedia.</td>
+                <td colspan="8">Data penggajian belum tersedia.</td>
             </tr>
             <?php endif; ?>
         </tbody>

@@ -261,10 +261,9 @@ class Admin extends BaseController
     {
         // Ambil ID Anggota dari form
         $idAnggota = $this->request->getPost('id_anggota'); 
-        $idKomponenGajiPokok = $this->request->getPost('id_komponen_gaji');
         
-        if (empty($idAnggota) || empty($idKomponenGaji)) {
-            return redirect()->back()->with('error', 'Anggota dan Komponen Gaji wajib dipilih.')->withInput();
+        if (empty($idAnggota)) {
+            return redirect()->back()->with('error', 'Anggota wajib dipilih.')->withInput();
         }
 
         // Inisialisasi Model
@@ -272,26 +271,41 @@ class Admin extends BaseController
         $komponenModel = new KomponenGajiModel();
         $penggajianModel = new PenggajianModel();
 
-         // Ambil data Anggota & Komponen Gaji Pokok
+         // Ambil data Anggota 
         $anggota = $anggotaModel->find($idAnggota);
-        $komponenPokok = $komponenModel->find($idKomponenGajiPokok);
-
-        if (!$anggota || !$komponenPokok) {
-            return redirect()->back()->with('error', 'Data anggota atau komponen utama tidak ditemukan.')->withInput();
+        
+        if (!$anggota) {
+            return redirect()->back()->with('error', 'Data anggota tidak ditemukan.')->withInput();
         }
 
-        // Tentukan Jabatan dan Gaji Pokok
+        // Tentukan Jabatan 
         $jabatanAnggota = $anggota['jabatan'];
-        $gajiPokok = $komponenPokok['nominal'];
         $totalTunjangan = 0;
 
+        $komponenPokok = $komponenModel
+                            ->where('kategori', 'Gaji Pokok')
+                            ->where('jabatan', $jabatanAnggota) // Cari Gaji Pokok spesifik jabatan
+                            ->first();
+                            
+        if (!$komponenPokok) {
+            // Jika tidak ada Gaji Pokok spesifik, coba cari yang berlaku untuk 'Semua'
+            $komponenPokok = $komponenModel
+                            ->where('kategori', 'Gaji Pokok')
+                            ->where('jabatan', 'Semua')
+                            ->first();
+        }
+
+        if (!$komponenPokok) {
+            return redirect()->back()->with('error', 'Gaji Pokok untuk jabatan ini belum disetup di Komponen Gaji.')->withInput();
+        }
+
+        $idKomponenGajiPokok = $komponenPokok['id_komponen_gaji'];
+        $gajiPokok = $komponenPokok['nominal'];
+
         // Ambil Komponen Gaji Lainya (Tunjangan Melekat/Lain) 
-        // Ambil semua komponen yang berlaku untuk jabatan anggota ini
-        
         $komponenLainnya = $komponenModel
-                            ->where('jabatan', $jabatanAnggota)
-                            ->orWhere('jabatan', 'Semua') 
-                            ->where('kategori !=', 'Gaji Pokok') // Hindari double hitung Gaji Pokok
+                            ->whereIn('jabatan', [$jabatanAnggota, 'Semua']) 
+                            ->where('kategori !=', 'Gaji Pokok') 
                             ->findAll();
 
         foreach ($komponenLainnya as $k) {
@@ -306,23 +320,50 @@ class Admin extends BaseController
         $totalGajiBruto = $gajiPokok + $totalTunjangan;
         $takeHomePay = $totalGajiBruto; 
 
-        // 5. Simpan Hasil Perhitungan ke Tabel Penggajian (Agregasi)
+        // Simpan Hasil Perhitungan ke Tabel Penggajian (Agregasi)
         $dataSimpan = [
             'id_anggota'        => $idAnggota,
             'id_komponen_gaji'  => $idKomponenGajiPokok,
-            'jabatan'           => $jabatanAnggota,
-            'tunjangan'         => $totalTunjangan,
             'total_gaji'       => $totalGajiBruto,
             'take_home_pay'    => $takeHomePay,
         ];
 
         try {
-            // Menggunakan save() yang akan UPDATE jika id_anggota sudah ada (karena id_anggota adalah primary key)
-            $penggajianModel->save($dataSimpan);
-            return redirect()->to('/admin/penggajian')->with('success', 'Perhitungan gaji berhasil disimpan.');
+            // Cek apakah data penggajian untuk anggota ini sudah ada
+            $existingData = $penggajianModel->find($idAnggota);
+
+            if ($existingData) {
+                // Jika sudah ada, lakukan UPDATE (hanya data gaji yang diupdate)
+                $updateResult = $penggajianModel->update($idAnggota, $dataSimpan);
+                
+                if ($updateResult === false) {
+                     // Jika update gagal (bukan karena kolom, tapi masalah lain), tangkap error.
+                     $errorMsg = 'Gagal melakukan update data penggajian. ';
+                     if ($penggajianModel->errors()) {
+                         $errorMsg .= 'Validasi Model: ' . json_encode($penggajianModel->errors());
+                     }
+                     return redirect()->to('/admin/penggajian')->with('error', $errorMsg);
+                }
+
+            } else {
+                // Jika belum ada, lakukan INSERT
+                $insertResult = $penggajianModel->insert($dataSimpan);
+
+                if ($insertResult === false) {
+                    // Jika insert gagal, tangkap error
+                    $errorMsg = 'Gagal melakukan insert data penggajian. ';
+                    if ($penggajianModel->errors()) {
+                        $errorMsg .= 'Validasi Model: ' . json_encode($penggajianModel->errors());
+                    }
+                    return redirect()->to('/admin/penggajian')->with('error', $errorMsg);
+                }
+            }
+
+            return redirect()->to('/admin/penggajian')->with('success', 'Perhitungan gaji berhasil disimpan/diperbarui.');
+            
         } catch (\Exception $e) {
-            // Ini akan menangkap error jika ada kolom yang tidak cocok
-            return redirect()->back()->with('error', 'Gagal menyimpan data: Pastikan semua kolom yang diperlukan (termasuk total_gaji, tunjangan) ada di tabel penggajian. Error: ' . $e->getMessage())->withInput();
+            // Tangkap error umum (termasuk error kolom)
+            return redirect()->back()->with('error', 'Gagal menyimpan data (CATCH BLOK). Error: ' . $e->getMessage())->withInput();
         }
     }
 
@@ -360,9 +401,8 @@ class Admin extends BaseController
 
         // Validasi input
         $this->validate([
-            'id_anggota'        => 'required',
-            'id_komponen_gaji'  => 'required',
-            'jabatan'           => 'required',
+            'id_anggota'       => 'required',
+            'id_komponen_gaji' => 'required',
             'total_gaji'       => 'required',
             'take_home_pay'    => 'required',
         ]);
@@ -370,7 +410,7 @@ class Admin extends BaseController
         // Ambil data dari form
         $data = [
             'id_anggota'        => $this->request->getPost('id_anggota'),
-            'id_komponen_gaji'  => $this->request->getPost('id_komponen_gaji'),
+            'id_komponen_gaji'  => $this->request->getPost('id_komponen_gaji'),        
             'total_gaji'       => $this->request->getPost('total_gaji'),
             'take_home_pay'    => $this->request->getPost('take_home_pay'),
         ];

@@ -11,8 +11,6 @@ class PenggajianModel extends Model
     protected $allowedFields = [
         'id_anggota',
         'id_komponen_gaji', 
-        'jabatan', 
-        'tunjangan', 
         'total_gaji', 
         'take_home_pay'
     ]; 
@@ -21,8 +19,13 @@ class PenggajianModel extends Model
     {
         $builder = $this->db->table($this->table . ' AS P');
         $builder->select('
-            P.*,
-            A.gelar_depan, A.nama_depan, A.nama_belakang, A.gelar_belakang, A.jabatan, A.status_pernikahan, A.jumlah_anak
+            P.id_anggota,
+            A.gelar_depan, 
+            A.nama_depan, 
+            A.nama_belakang, 
+            A.gelar_belakang, 
+            A.jabatan, 
+            P.take_home_pay
         ');
         
         $builder->join('anggota AS A', 'A.id_anggota = P.id_anggota', 'inner');
