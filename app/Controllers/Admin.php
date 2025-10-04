@@ -3,6 +3,7 @@
 use App\Controllers\BaseController;
 use App\Models\AnggotaModel;
 use App\Models\KomponenGajiModel;
+use App\Models\PenggajianModel;
 
 class Admin extends BaseController
 {
@@ -194,5 +195,22 @@ class Admin extends BaseController
 
         // Redirect ke halaman daftar komponen gaji dengan pesan sukses
         return redirect()->to('/admin/gaji')->with('success', 'Data komponen gaji berhasil dihapus.');
+    }
+
+    public function managePenggajian()
+    {
+        // Inisialisasi Model Penggajian
+        $model = new \App\Models\PenggajianModel();
+
+        // Mengambil ringkasan gaji (termasuk JOIN dan GROUPING)
+        $gajiSummary = $model->getGajiSummary();
+
+        $data = [
+            'penggajian' => $gajiSummary,
+            'title'    => 'Ringkasan Take Home Pay Anggota DPR'
+        ];
+
+        // Memuat View untuk menampilkan daftar penggajian
+        return view('admin/penggajian/index', $data);
     }
 }

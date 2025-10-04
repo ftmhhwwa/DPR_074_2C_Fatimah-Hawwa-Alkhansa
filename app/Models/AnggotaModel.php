@@ -12,6 +12,6 @@ class AnggotaModel extends Model
 
     protected $allowedFields = [
         'gelar_depan','nama_depan','nama_belakang','gelar_belakang','jabatan',
-        'status_pernikahan'
+        'status_pernikahan','jumlah_anak'
     ];
 }

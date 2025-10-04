@@ -32,6 +32,8 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('komponengaji/edit/(:num)', 'Admin::editKomponenGaji/$1');
     $routes->post('komponengaji/update/(:num)', 'Admin::updateKomponenGaji/$1');
     $routes->get('komponengaji/delete/(:num)', 'Admin::deleteKomponenGaji/$1');
+
+    $routes->get('penggajian', 'Admin::managePenggajian');
 });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---
