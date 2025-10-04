@@ -20,6 +20,8 @@ $routes->group('/', ['filter' => 'auth'], function($routes) {
 // --- ROUTE ADMIN (Hanya bisa diakses jika role = Admin) ---
 $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->get('anggota', 'Admin::manageAnggota'); 
+    $routes->get('anggota/create', 'Admin::createAnggota');
+    $routes->post('anggota/store', 'Admin::storeAnggota');
 });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---
