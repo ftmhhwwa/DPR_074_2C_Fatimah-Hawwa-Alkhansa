@@ -89,4 +89,17 @@ class Admin extends BaseController
         // Redirect ke halaman daftar anggota dengan pesan sukses
         return redirect()->to('/admin/anggota')->with('success', 'Data anggota berhasil diperbarui.');
     }
+
+    public function deleteAnggota($id)
+    {
+        $anggotaModel = new AnggotaModel();
+
+        // Menghapus data anggota berdasarkan ID
+        $anggotaModel->delete($id);
+
+        // Redirect ke halaman daftar anggota dengan pesan sukses
+        return redirect()->to('/admin/anggota')->with('success', 'Data anggota berhasil dihapus.');
+    }
+
+    
 }

@@ -24,6 +24,7 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
     $routes->post('anggota/store', 'Admin::storeAnggota');
     $routes->get('anggota/edit/(:num)', 'Admin::editAnggota/$1');
     $routes->post('anggota/update/(:num)', 'Admin::updateAnggota/$1');
+    $routes->get('anggota/delete/(:num)', 'Admin::deleteAnggota/$1');
 });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---
