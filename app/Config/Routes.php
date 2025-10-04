@@ -10,16 +10,19 @@ $routes->get('/', 'Login::index');
 
 $routes->get('/login', 'Login::index');
 $routes->post('/login/auth', 'Login::auth');
-$routes->get('/logout', 'Login::logout');
+
+$routes->group('/', ['filter' => 'auth'], function($routes) {
+    $routes->get('dashboard', 'Dashboard::index');
+    $routes->get('/logout', 'Login::logout');
+});
+
 
 // --- ROUTE ADMIN (Hanya bisa diakses jika role = Admin) ---
-$routes->group('admin', function ($routes) {
-    // Dashboard Admin
-    $routes->get('dashboard', 'Dashboard::index'); 
+$routes->group('admin', ['filter' => 'auth'], function ($routes) {
+    $routes->get('anggota', 'Admin::manageAnggota'); 
 });
 
 // --- ROUTE PUBLIC (Hanya bisa diakses jika role = Public) ---
-$routes->group('public', function ($routes) {
-    // Dashboard Public
-    $routes->get('dashboard', 'Dashboard::index');
+$routes->group('client', ['filter' => 'auth'], function ($routes) {
+    $routes->get('anggota', 'Client::viewAnggota');
 });

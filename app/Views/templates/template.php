@@ -19,16 +19,15 @@ $isLoggedIn = session()->get('isLoggedIn');
 
     <div class="menu">
         <?php if ($isLoggedIn) : ?>
-            
+            <a href="/dashboard" class="<?= $firstSegment === 'dashboard' ? 'active' : '' ?>">Dashboard</a>
+
             <?php if (session()->get('role') === 'Admin') : ?>
-                <a href="/admin/dashboard" class="<?= $firstSegment === 'admin' ? 'active' : '' ?>">Dashboard Admin</a>
                 <a href="/admin/anggota" class="<?= $secondSegment === 'anggota' ? 'active' : '' ?>">Data Anggota</a>
                 <a href="/admin/gaji" class="<?= $secondSegment === 'gaji' ? 'active' : '' ?>">Data Gaji</a>
             
             <?php elseif (session()->get('role') === 'Public') : ?>
-                <a href="/public/dashboard" class="<?= $firstSegment === 'public' ? 'active' : '' ?>">Dashboard Public</a>
-                <a href="/public/anggota" class="<?= $secondSegment === 'anggota' ? 'active' : '' ?>">Data Anggota</a>
-                <a href="/public/penggajian" class="<?= $secondSegment === 'penggajian' ? 'active' : '' ?>">Transparansi Gaji</a>
+                <a href="/client/anggota" class="<?= $secondSegment === 'anggota' ? 'active' : '' ?>">Data Anggota</a>
+                <a href="/client/penggajian" class="<?= $secondSegment === 'penggajian' ? 'active' : '' ?>">Transparansi Gaji</a>
             <?php endif; ?>
 
             <a href="/logout">Logout</a>

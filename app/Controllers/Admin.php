@@ -1,12 +1,24 @@
-<?php namespace App\Controllers\Admin;
+<?php namespace App\Controllers;
 
 use App\Controllers\BaseController;
+use App\Models\AnggotaModel;
 
-class Dashboard extends BaseController
+class Admin extends BaseController
 {
-    public function index()
+    public function manageAnggota()
     {
-        // View Admin Dashboard
-        return view('admin/dashboard'); 
+        // Inisialisasi Model Anggota
+        $anggotaModel = new AnggotaModel();
+
+        // Mengambil semua data anggota dari database
+        $dataAnggota = $anggotaModel->findAll(); 
+
+        $data = [
+            'anggota' => $dataAnggota,
+            'title'   => 'Kelola Data Anggota DPR'
+        ];
+
+        // Memuat View untuk menampilkan daftar anggota
+        return view('admin/anggota/index', $data);
     }
 }
