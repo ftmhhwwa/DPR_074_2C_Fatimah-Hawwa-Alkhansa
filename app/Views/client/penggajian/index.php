@@ -28,7 +28,7 @@
                 <td><?= $row['jabatan'] ?></td>
                 <td><?= number_format($row['take_home_pay'], 2, ',', '.') ?></td>
                 <td>
-                    <a href="/client/penggajian/view/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-info">View</a>                    
+                    <a href="/client/penggajian/detail/<?= $row['id_anggota'] ?>" class="btn btn-sm btn-info">View</a>                    
                 </td>
             </tr>
             <?php endforeach; 

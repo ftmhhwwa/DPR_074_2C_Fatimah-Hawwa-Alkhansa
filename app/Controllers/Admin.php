@@ -201,62 +201,58 @@ class Admin extends BaseController
 
     public function managePenggajian()
     {
-        // Inisialisasi Model Penggajian
-        $model = new PenggajianModel();
-
-        // Mengambil ringkasan gaji (termasuk JOIN dan GROUPING)
-        $gajiSummary = $model->getGajiSummary();
+        $penggajianModel = new PenggajianModel();
+        $gajiSummary = $penggajianModel->getGajiSummary();
 
         $data = [
             'penggajian' => $gajiSummary,
-            'title'    => 'Ringkasan Take Home Pay Anggota DPR'
+            'title'      => 'Ringkasan Take Home Pay Anggota DPR'
         ];
 
-        // Memuat View untuk menampilkan daftar penggajian
         return view('admin/penggajian/index', $data);
     }
     
-    public function viewPenggajian($idAnggota)
+    public function detailPenggajian($idAnggota)
     {
-        $model = new PenggajianModel();
+        $penggajianModel = new PenggajianModel();
+        $anggotaModel = new AnggotaModel(); // Asumsi model ini ada
 
-        // Mengambil detail gaji untuk anggota tertentu
-        $gajiDetail = $model->getGajiDetailByAnggota($idAnggota);
+        $anggota = $anggotaModel->find($idAnggota);
+        $detailGaji = $penggajianModel->getGajiDetailByAnggota($idAnggota);
 
-        if (empty($gajiDetail)) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data penggajian tidak ditemukan untuk anggota ini.');
+        if (!$anggota) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Anggota tidak ditemukan.');
         }
 
         $data = [
-            'gajiDetail' => $gajiDetail,
-            'title'      => 'Detail Penggajian Anggota DPR'
+            'title'      => 'Detail Gaji: ' . $anggota['nama_depan'] . ' ' . $anggota['nama_belakang'],
+            'anggota'    => $anggota,
+            'detailGaji' => $detailGaji
         ];
 
-        // Memuat View untuk menampilkan detail penggajian
-        return view('admin/penggajian/view', $data);
+        return view('admin/penggajian/detail', $data);    
     }
 
     public function createPenggajian()
     {
-        helper(['form']);
-        // Inisialisasi Model
-        $anggotaModel = new AnggotaModel();
-        $komponenGajiModel = new KomponenGajiModel();
+        $penggajianModel = new PenggajianModel();
+        // Mengambil hanya anggota yang belum punya data gaji
+        $data['anggota'] = $penggajianModel->getAnggotaTanpaPenggajian();
+        $data['title'] = 'Tambah Data Penggajian';
+        return view('admin/penggajian/create', $data);    
+    }
 
-        // Mengambil semua data anggota dari database untuk dropdown
-        $dataAnggota = $anggotaModel->findAll();
+    public function processCreatePenggajian()
+    {
+        $idAnggota = $this->request->getPost('id_anggota');
 
-        // Mengambil semua komponen gaji berdasarkan jabatan anggota
-        $dataKomponenGaji = $komponenGajiModel->findAll();
+        // Validasi sederhana
+        if (empty($idAnggota)) {
+            return redirect()->to('admin/penggajian/create')->with('error', 'Silakan pilih anggota terlebih dahulu.');
+        }
 
-        $data = [
-            'anggota'      => $dataAnggota,
-            'komponenGaji' => $dataKomponenGaji,
-            'title'        => 'Hitung Take Home Pay Anggota DPR'
-        ];
-
-        // Menampilkan form untuk menghitung gaji baru
-        return view('admin/penggajian/create', $data);
+        // Langsung arahkan ke halaman edit untuk anggota yang dipilih
+        return redirect()->to('admin/penggajian/edit/' . $idAnggota);
     }
 
     public function storePenggajian()
@@ -369,31 +365,75 @@ class Admin extends BaseController
         }
     }
 
-    public function editPenggajian($id)
+    public function editPenggajian($idAnggota)
     {
         $penggajianModel = new PenggajianModel();
-        $query = $penggajianModel->select('
-                                        penggajian.id_anggota, 
-                                        penggajian.id_komponen_gaji,
-                                        A.nama_depan, A.nama_belakang, 
-                                        A.jabatan,  
-                                        penggajian.total_gaji, 
-                                        penggajian.take_home_pay
-                                        ')
-                                ->join('anggota AS A', 'A.id_anggota = penggajian.id_anggota', 'inner')
-                                ->join('komponen_gaji AS K', 'K.id_komponen_gaji = penggajian.id_komponen_gaji', 'inner')
-                                ->where('penggajian.id_anggota', $id);
-                                
-        $data = $query->first();
+        $anggotaModel = new AnggotaModel();
+        $komponenGajiModel = new KomponenGajiModel();
 
-        if (!$data) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound();
+        $anggota = $anggotaModel->find($idAnggota);
+        if (!$anggota) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Anggota tidak ditemukan');
         }
 
+        // --- LOGIKA UNTUK MENYIMPAN (METHOD POST) ---
+        if ($this->request->getMethod() === 'post') {
+            
+            // Ambil semua komponen yang relevan untuk jabatan anggota dan yang berlaku untuk "Semua"
+            $komponenTersedia = $komponenGajiModel
+                                ->whereIn('jabatan', [$anggota['jabatan'], 'Semua'])
+                                ->findAll();
+
+            $idKomponenTerpilih = [];
+
+            foreach ($komponenTersedia as $k) {
+                // Aturan 1: Tambahkan Gaji Pokok & Tunjangan Melekat (selain tunjangan keluarga)
+                if ($k['kategori'] === 'Gaji Pokok' || strpos($k['kategori'], 'Tunjangan Melekat') !== false) {
+                    $idKomponenTerpilih[] = $k['id_komponen_gaji'];
+                }
+
+                // Aturan 2: Cek Tunjangan Istri/Suami (sesuai spesifikasi )
+                if ($k['nama_komponen'] === 'Tunjangan Istri/Suami' && $anggota['status_pernikahan'] === 'Kawin') {
+                    $idKomponenTerpilih[] = $k['id_komponen_gaji'];
+                }
+
+                // Aturan 3: Cek Tunjangan Anak (sesuai spesifikasi )
+                if ($k['nama_komponen'] === 'Tunjangan Anak' && $anggota['jumlah_anak'] > 0) {
+                    // Tambahkan komponen ini sebanyak jumlah anak, tetapi maksimal 2 kali
+                    $jumlahAnakDihitung = min($anggota['jumlah_anak'], 2);
+                    for ($i = 0; $i < $jumlahAnakDihitung; $i++) {
+                        $idKomponenTerpilih[] = $k['id_komponen_gaji'];
+                    }
+                }
+            }
+            
+            // Hapus duplikat ID jika ada
+            $idKomponenFinal = array_unique($idKomponenTerpilih);
+
+            // Panggil model untuk menyimpan data
+            if ($penggajianModel->updateAnggotaGaji($idAnggota, $idKomponenFinal)) {
+                // --> BARIS INI HANYA AKAN DIJALANKAN JIKA KONDISI 'IF' TERPENUHI (TRUE)
+                return redirect()->to('/admin/penggajian')->with('success', 'Data gaji anggota berhasil dihitung dan disimpan.');
+            } else {
+                // --> JIKA KONDISI 'IF' GAGAL (FALSE), DIA AKAN KESINI
+                return redirect()->back()->withInput()->with('error', 'Gagal memperbarui data gaji.');
+            }
+        }
+
+        // --- BAGIAN UNTUK MENAMPILKAN FORM (METHOD GET) ---
+        // Logika ini sekarang hanya untuk menampilkan, bukan untuk memilih secara manual
+        $idKomponenSaatIni = array_column($penggajianModel->getGajiDetailByAnggota($idAnggota), 'id_komponen_gaji');
+        
         $data = [
-            'title'       => 'Edit Penggajian',
-            'penggajian'  => $data
+            'title' => 'Kalkulasi & Simpan Gaji: ' . $anggota['nama_depan'],
+            'anggota' => $anggota,
+            // Kita tetap kirim komponen untuk ditampilkan di detail jika perlu
+            'detailGaji' => $penggajianModel->getGajiDetailByAnggota($idAnggota), 
+            'semuaKomponen' => $komponenGajiModel->findAll(),
+            'idKomponenSaatIni' => $idKomponenSaatIni,
         ];
+
+        // Kita bisa membuat view baru yang lebih simpel, atau memodifikasi view edit
         return view('admin/penggajian/edit', $data);
     }
 
@@ -423,14 +463,13 @@ class Admin extends BaseController
         return redirect()->to('/admin/penggajian')->with('success', 'Data penggajian berhasil diperbarui.');
     }
 
-    public function deletePenggajian($id)
+    public function deletePenggajian($idAnggota)
     {
-        $model = new PenggajianModel();
-
-        // Menghapus data komponen gaji berdasarkan ID
-        $model->delete($id);
-
-        // Redirect ke halaman daftar komponen gaji dengan pesan sukses
-        return redirect()->to('/admin/penggajian')->with('success', 'Data komponen gaji berhasil dihapus.');
+        $penggajianModel = new PenggajianModel();
+        if ($penggajianModel->deleteGajiByAnggota($idAnggota)) {
+            return redirect()->to('/admin/penggajian')->with('success', 'Data penggajian anggota berhasil dihapus.');
+        } else {
+            return redirect()->to('/admin/penggajian')->with('error', 'Gagal menghapus data penggajian.');
+        }
     }
 }

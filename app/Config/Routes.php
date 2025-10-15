@@ -35,10 +35,11 @@ $routes->group('admin', ['filter' => 'auth'], function ($routes) {
 
     $routes->get('penggajian', 'Admin::managePenggajian');
     $routes->post('penggajian/hitung', 'Admin::hitungPenggajian');
-    $routes->get('penggajian/view/(:num)', 'Admin::viewPenggajian/$1');
+    $routes->get('penggajian/detail/(:num)', 'Admin::detailPenggajian/$1');
     $routes->get('penggajian/create', 'Admin::createPenggajian');
+    $routes->post('penggajian/process_create', 'Admin::processCreatePenggajian'); 
     $routes->post('penggajian/store', 'Admin::storePenggajian');
-    $routes->get('penggajian/edit/(:num)', 'Admin::editPenggajian/$1');
+    $routes->match(['get', 'post'], 'penggajian/edit/(:num)', 'Admin::editPenggajian/$1');
     $routes->put('penggajian/update/(:num)', 'Admin::updatePenggajian/$1');
     $routes->get('penggajian/delete/(:num)', 'Admin::deletePenggajian/$1');
     });
@@ -48,5 +49,5 @@ $routes->group('client', ['filter' => 'auth'], function ($routes) {
     $routes->get('anggota', 'Client::viewAnggota');
     $routes->get('gaji', 'Client::viewKomponenGaji');
     $routes->get('penggajian', 'Client::indexPenggajian');
-    $routes->get('penggajian/view/(:num)', 'Client::viewPenggajian/$1');
+    $routes->get('penggajian/detail/(:num)', 'Client::detailPenggajian/$1');
 });

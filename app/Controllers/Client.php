@@ -3,6 +3,7 @@
 use App\Controllers\BaseController;
 use App\Models\KomponenGajiModel;
 use App\Models\PenggajianModel;
+use App\Models\AnggotaModel;
 
 class Client extends BaseController
 {
@@ -66,23 +67,24 @@ class Client extends BaseController
         return view('client/penggajian/index', $data);
     }
     
-    public function viewPenggajian($idAnggota)
+    public function detailPenggajian($idAnggota)
     {
-        $model = new PenggajianModel();
+        $penggajianModel = new PenggajianModel();
+        $anggotaModel = new AnggotaModel(); 
 
-        // Mengambil detail gaji untuk anggota tertentu
-        $gajiDetail = $model->getGajiDetailByAnggota($idAnggota);
+        $anggota = $anggotaModel->find($idAnggota);
+        $detailGaji = $penggajianModel->getGajiDetailByAnggota($idAnggota);
 
-        if (empty($gajiDetail)) {
-            throw new \CodeIgniter\Exceptions\PageNotFoundException('Data penggajian tidak ditemukan untuk anggota ini.');
+        if (!$anggota) {
+            throw new \CodeIgniter\Exceptions\PageNotFoundException('Anggota tidak ditemukan.');
         }
 
         $data = [
-            'gajiDetail' => $gajiDetail,
-            'title'      => 'Detail Penggajian Anggota DPR'
+            'title'      => 'Detail Gaji: ' . $anggota['nama_depan'] . ' ' . $anggota['nama_belakang'],
+            'anggota'    => $anggota,
+            'detailGaji' => $detailGaji
         ];
 
-        // Memuat View untuk menampilkan detail penggajian
-        return view('client/penggajian/view', $data);
+        return view('admin/penggajian/detail', $data);
     }
 }
